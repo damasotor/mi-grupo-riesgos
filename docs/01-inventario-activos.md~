@@ -1,0 +1,15 @@
+1. Inventario de Activos
+Clasificacion los componentes identificados en los archivo de arquitectura de activos tecnológicos y de información:
+
+	Activos de Información (Datos Críticos):
+		Credenciales e Identidades de Votantes: Almacenadas en la Base de Datos de Votantes. Requieren máxima confidencialidad e integridad.  
+		Votos Cifrados (Cifrado Homomórfico): Alojados en el Repositorio de Votos Cifrados. Requieren integridad absoluta y disociación completa de la identidad.  
+		Claves Criptográficas Maestras: Custodiadas dentro del HSM / KMS Claves. Son el activo de mayor criticidad del sistema.  
+		Registro de Auditoría Inmutable: Almacenado en la Blockchain Audit Trail y los Logs de Auditoría. Garantiza la verificabilidad del proceso.  
+	
+	Activos Tecnológicos (Componentes de Software y Hardware):
+		Punto de Entrada: Votante Web / App Móvil y el API Gateway / WAF.  
+		Servicios de Lógica de Negocio: Servicio de Autenticación, Servicio de Emisión de Votos y Servicio de Escrutinio.  
+		Visualización y Control: Dashboard de Resultados administrado por la Autoridad Electoral y Auditores.  
+		
+		
