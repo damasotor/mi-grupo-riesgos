@@ -15,8 +15,8 @@
 
 4.2 Matriz de Amenazas por Componente
 
-| ID | Componente | Categoría | Descripción de la Amenaza | CVE/CWE |
-| -------- | -------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| ID       | Componente                        | Categoría           | Descripción de la Amenaza                                                                                                                                                               | CVE/CWE |
+| -------- | -------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
 | TH01 | API Gateway / WAF            | DoS                      | Saturación de red y recursos para impedir el acceso de los votantes durante la jornada electoral.                              | CWE-400 |
 | TH02 | Servicio de Emisión            | Tampering          | Interceptación del flujo de red para alterar el contenido del voto antes de su cifrado y registro en la Blockchain. | CWE-353 |
 | TH03 | Servicio de Autenticación | Spoofing             | Un atacante utiliza credenciales robadas o tokens de sesión falsificados para emitir un voto ilegítimo.                    | CWE-287 |
@@ -51,3 +51,15 @@ _ [T1557] Adversary-in-the-Middle.
 _ [T1565] Data Manipulation.
 
 
+
+--- AMENAZA TH03: Suplantación de Identidad del Votante (Spoofing) ---
+
+    Categoría STRIDE: S (Spoofing)
+    Descripción: Un atacante compromete u obtiene credenciales legítimas de los ciudadanos (mediante técnicas de ingeniería social o interceptación de tráfico) o bien roba un token de acceso web activo (JWT), evadiendo los mecanismos de control del servicio de autenticación para emitir un sufragio fraudulento.
+    Activos Afectados: Servicio de Autenticación, Integridad del Padrón Electoral.
+    Probabilidad: Media (El phishing y el robo de credenciales son vectores comunes dirigidos al usuario final).
+    Impacto: Alto (Afecta directamente la legitimidad de las identidades del padrón, aunque de manera individualizada).
+    Justificación de la Amenaza: Esta amenaza se ubica en el ingreso al sistema y en el procesamiento del *Trust Boundary #1*. Si el atacante vulnera la identidad en el Servicio de Autenticación, el backend procesará el voto como un flujo totalmente lícito y legítimo.
+    Técnicas ATT&CK relacionadas:
+    - [T1078] Valid Accounts.
+    - [T1528] Steal Application Access Token.
