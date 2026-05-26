@@ -4,7 +4,7 @@ El proyecto consiste en una plataforma de votación electrónica diseñada para 
 
            1.2 Alcance del Análisis
 
-Componentes incluidos:    
+    Componentes incluidos:    
 
 1     Frontend (Web/App):     Interfaz de usuario para la emisión del voto.
 2     API Gateway / WAF:     Punto de entrada y filtrado de tráfico.
@@ -12,7 +12,7 @@ Componentes incluidos:
 4     Servicio de Emisión y Cifrado:     Módulo de procesamiento y cifrado homomórfico.
 5     Repositorio Cifrado (Blockchain):     Almacenamiento inmutable de los votos.
 
-Componentes fuera de alcance:    
+    Componentes fuera de alcance:    
 
 -Preferencias de los votantes:     Los datos específicos sobre qué candidato elige el votante son tratados como un "payload" cifrado opaco; el análisis de riesgo no audita la veracidad o el contenido de dicha preferencia.
 -Entorno físico del votante:     La seguridad del dispositivo personal del usuario (laptop/celular) es responsabilidad del mismo y queda fuera del perímetro de control de la organización.
@@ -22,16 +22,16 @@ Componentes fuera de alcance:
 
 1.3 Supuestos y Marco Normativo
 
-Marco de Referencia: Este análisis se desarrolla tomando como base las Buenas Prácticas de Seguridad de la Información (NTCSI) dictadas por AGESIC.
+    Marco de Referencia: Este análisis se desarrolla tomando como base las Buenas Prácticas de Seguridad de la Información (NTCSI) dictadas por AGESIC.
 
-Estándares Criptográficos: Aunque la normativa nacional uruguaya no impone una certificación de hardware equivalente a FIPS 140-2, este proyecto adopta dicho estándar como mejor práctica internacional (Best Practice). Esta decisión asegura la debida diligencia en la protección de claves criptográficas y el cumplimiento de los niveles de seguridad requeridos para sistemas críticos de infraestructura pública.
+    Estándares Criptográficos: Aunque la normativa nacional uruguaya no impone una certificación de hardware equivalente a FIPS 140-2, este proyecto adopta dicho estándar como mejor práctica internacional (Best Practice). Esta decisión asegura la debida diligencia en la protección de claves criptográficas y el cumplimiento de los niveles de seguridad requeridos para sistemas críticos de infraestructura pública.
 
-Entorno de Red: Se asume que el tráfico de Internet es un entorno de confianza cero (Zero Trust), por lo que se implementan controles de cifrado en tránsito y autenticación mutua por defecto.
+    Entorno de Red: Se asume que el tráfico de Internet es un entorno de confianza cero (Zero Trust), por lo que se implementan controles de cifrado en tránsito y autenticación mutua por defecto.
 
-Continuidad: Se asume que la autoridad electoral proporciona el padrón actualizado en tiempo y forma, cumpliendo con la Ley Nº 18.331 de Protección de Datos Personales.
+    Continuidad: Se asume que la autoridad electoral proporciona el padrón actualizado en tiempo y forma, cumpliendo con la Ley Nº 18.331 de Protección de Datos Personales.
 
 ---
-2. IDENTIFICACIÓN DE ACTIVOS
+     2. IDENTIFICACIÓN DE ACTIVOS
 
 2.1 Activos de Información
 
