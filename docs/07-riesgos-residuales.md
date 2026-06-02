@@ -1,50 +1,53 @@
-══════════════════════════════════════════════════════════
+8. RIESGOS RESIDUALES
 
-     9. RIESGOS RESIDUALES
+8.1 Introduccion
 
-══════════════════════════════════════════════════════════
+Los riesgos residuales son aquellos que pueden seguir existiendo incluso despues de aplicar controles de seguridad. En otras palabras, aunque el sistema incorpore medidas de proteccion, no siempre es posible eliminar por completo todos los riesgos.
 
-| ID | Riesgo Residual | Prob. | Imp. | Justificación / Aceptación |
-| --- | ------------------------ | -------- | ------ | --------------------------------------- |
-| R01 | Coerción física del votante | M | A | Se acepta técnicamente. La plataforma no puede controlar si el usuario está siendo amenazado físicamente al momento de usar su dispositivo. Requiere mitigación externa (legal/policial). |
-| R02 | Vulnerabilidad Zero-Day en HSM | B | C | Se acepta. La probabilidad de que exista un exploit público desconocido (Zero-Day) para hardware criptográfico certificado es extremadamente baja. |
-| R03 | Malware en dispositivo del usuario | A | M | Se acepta parcialmente. El malware podría capturar la pantalla, pero la disociación de red impide alterar el escrutinio general. |
+En una plataforma de votacion digital, esto es especialmente importante porque existen factores externos, tecnicos y humanos que no pueden controlarse totalmente.
 
-══════════════════════════════════════════════════════════
+8.2 Riesgos Residuales Identificados
 
-     10. ENTREGABLE EXTRA: EVALUACIÓN DE ANONIMALIDAD (RFC 6973)
+| ID  | Riesgo residual | Probabilidad | Impacto | Justificacion |
+| --- | --------------- | ------------ | ------- | ------------- |
+| R01 | Coaccion al votante fuera del sistema | Media | Alta | El sistema no puede controlar completamente el entorno fisico o social en el que vota la persona. |
+| R02 | Problemas de seguridad en el dispositivo del votante | Media | Alta | Aunque la plataforma tenga controles propios, el dispositivo del usuario podria estar comprometido o ser inseguro. |
+| R03 | Falla o vulnerabilidad no conocida en componentes criticos | Baja | Alta | Puede existir una vulnerabilidad no detectada en software, servicios o componentes sensibles. |
+| R04 | Errores de configuracion o uso por parte de administradores | Media | Media | Un error humano puede afectar configuraciones, accesos o procesos importantes. |
+| R05 | Interrupciones externas de conectividad o infraestructura | Media | Media | Factores como caidas de red, DNS o servicios externos pueden afectar la disponibilidad. |
 
-══════════════════════════════════════════════════════════
+8.3 Explicacion de los Riesgos Residuales
 
-En cumplimiento estricto de las directrices de privacidad estipuladas por el RFC 6973 (Request for Comments 6973 - el estándar internacional técnico que rige las consideraciones de privacidad en sistemas distribuidos), se realiza el análisis sobre las salvaguardas que impiden la correlación de la identidad del votante con su sufragio:
+R01 - Coaccion al votante fuera del sistema
 
-1. Principio de No-Vinculabilidad (Unlinkability): El sistema implementa una separación lógica y física absoluta entre el Servicio de Autenticación (encargado de validar la CI Digital o el MFA - Autenticación Multifactor - y marcar al ciudadano en el padrón como "Ya votó") y el Servicio de Emisión de Votos (que procesa el criptograma). El uso de blind signatures (firmas ciegas) asegura que el servidor central firme la validez del derecho al voto del ciudadano sin llegar a conocer jamás el contenido del sufragio elegido, rompiendo cualquier lazo de unión de datos entre el votante y su opción política.
+Aunque la plataforma aplique controles tecnicos, no puede garantizar completamente que el votante este libre de presiones, amenazas o influencias externas al momento de emitir su voto.
 
-2. Mitigación de la Coerción (Voto Coercion):
-   Como se identificó en el riesgo residual R01, la aplicación no puede evitar que un coactor amenace físicamente a un ciudadano en su domicilio. Para solucionar este vector de ataque desde el diseño de la arquitectura, se define el requisito de "Voto Múltiple Reemplazable": un votante coercionado puede emitir el voto que le imponen bajo amenaza externa. Posteriormente, al estar seguro y a solas, el sistema le permite ingresar nuevamente y emitir un nuevo sufragio legítimo. La base de datos y el motor de escrutinio procesarán únicamente el último voto registrado, descartando de forma automática los anteriores sin generar ninguna alerta visual que ponga en peligro al usuario.
+R02 - Problemas de seguridad en el dispositivo del votante
 
-3. Minimización de Datos en Registros de Auditoría:
-   Los logs de auditoría centralizados y los sistemas SIEM (Security Information and Event Management - Gestión de Eventos e Información de Seguridad) mapeados bajo la normativa NIST AU-9 tienen prohibido recolectar direcciones IP, identificadores de navegador (USER-AGENTS) o marcas de tiempo precisas en los microservicios de escrutinio. Al almacenar los registros transaccionales mediante identificadores pseudo-aleatorios y rotativos en la Blockchain, se anulan los ataques de análisis de tráfico que buscan la re-identificación cruzada de datos.
+La aplicacion puede estar protegida, pero el celular o la computadora del usuario podria tener malware, configuraciones inseguras o software no confiable. Esto sigue siendo un riesgo importante en sistemas remotos.
 
-══════════════════════════════════════════════════════════
+R03 - Falla o vulnerabilidad no conocida en componentes criticos
 
-     11. CONCLUSIONES Y RECOMENDACIONES
+Siempre existe la posibilidad de que aparezca una vulnerabilidad nueva en un componente importante del sistema, incluso si se aplican buenas practicas de seguridad.
 
-══════════════════════════════════════════════════════════
+R04 - Errores de configuracion o uso por parte de administradores
 
-    # 11.1 Resumen Ejecutivo
+No todos los riesgos provienen de atacantes externos. Tambien puede haber errores internos al configurar permisos, publicar resultados o administrar servicios.
 
-El análisis de modelado de amenazas sobre el Sistema de Votación Electrónica revela una arquitectura robusta por diseño, sustentada en la descentralización de la confianza (Blockchain) y criptografía avanzada (HSM). Las vulnerabilidades más críticas se concentran en la capa de disponibilidad perimetral (ataques DoS) y en los puntos de cruce de los Trust Boundaries, donde la segregación de red es vital para garantizar la integridad y el anonimato.
+R05 - Interrupciones externas de conectividad o infraestructura
 
-    # 11.2 Recomendaciones Prioritarias
+La disponibilidad del sistema tambien depende de elementos externos, como conectividad, servicios de red o componentes de infraestructura que pueden fallar.
 
-1. Despliegue perimetral robusto: Implementar de inmediato una solución WAF y Anti-DDoS comercial para absorber picos de tráfico malicioso.
-2. Aislamiento del Escrutinio: Asegurar mediante reglas de firewall a nivel de hardware que el Servicio de Escrutinio permanezca totalmente incomunicado hasta el cierre formal de la elección.
-3. Gestión de Identidades: Implementar un mecanismo de autenticación de doble factor para los votantes (ej. validación por SMS o App gubernamental) para elevar la complejidad de los ataques de suplantación.
+8.4 Tratamiento General
 
-    # 11.3 Próximos Pasos
+Estos riesgos no se eliminan por completo, pero pueden reducirse mediante:
 
- [ ] Implementar controles de alta prioridad (C01 y C02).
- [ ] Desarrollar y probar el Plan de Respuesta a Incidentes (Ejercicios de simulación DoS).
- [ ] Ejecutar prueba de penetración (Pentest) sobre el Trust Boundary #1 antes del pase a producción.
+- capacitacion y procedimientos claros para administradores;
+- monitoreo continuo y revision de eventos;
+- copias de seguridad y planes de recuperacion;
+- mejoras progresivas de seguridad en aplicaciones y servicios;
+- comunicacion clara sobre las limitaciones del sistema.
 
+8.5 Resumen
+
+El analisis de riesgos residuales muestra que, aun con controles de seguridad, siguen existiendo amenazas que no pueden eliminarse totalmente. En este proyecto, los riesgos mas relevantes se relacionan con el entorno del votante, fallas no previstas, errores humanos y problemas externos de disponibilidad. Por eso, ademas de controles tecnicos, tambien son importantes la auditoria, la supervision y la mejora continua.

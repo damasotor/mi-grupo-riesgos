@@ -1,41 +1,51 @@
+5. ANALISIS DE RIESGOS - METODOLOGIA DREAD
 
-══════════════════════════════════════════════════════════
+5.1 Que es DREAD
 
-5. ANÁLISIS DE RIESGOS - METODOLOGÍA DREAD 
+DREAD es una metodologia que permite priorizar amenazas de seguridad segun su impacto y la facilidad con la que pueden ser explotadas. Su objetivo es ayudar a identificar cuales riesgos deben atenderse primero.
 
-══════════════════════════════════════════════════════════
+5.2 Criterios DREAD
 
-5.1 Criterios DREAD
+| Criterio | Descripcion |
+| --- | --- |
+| Damage | Que tan grave seria el dano si la amenaza se concretara. |
+| Reproducibility | Que tan facil seria repetir el ataque. |
+| Exploitability | Que tan facil seria ejecutar el ataque. |
+| Affected Users | A cuantos usuarios o componentes podria afectar. |
+| Discoverability | Que tan facil seria encontrar la debilidad. |
 
-| Criterio | Descripción | Peso |
-| --- | --- | --- |
-| Damage | Daño potencial si se explota (1-10) | 1.0 |
-| Reproducibility | Facilidad para reproducir el ataque (1-10) | 1.0 |
-| Exploitability | Facilidad técnica para ejecutar el ataque (1-10) | 1.0 |
-| Affected Users | Proporción de usuarios o componentes afectados (1-10) | 1.0 |
-| Discoverability | Facilidad para encontrar la vulnerabilidad (1-10) | 1.0 |
+Cada criterio se valora de 1 a 10. Un valor mas alto indica un mayor nivel de riesgo.
 
-5.2 Matriz de Riesgos
+5.3 Matriz de Priorizacion
 
-| ID | Amenaza | D | R | E | A | D | TOTAL | Nivel |
-| -------- | -------------------------------------------- | --- | -- | -- | ---- | ---- | -------- | ------------- |
-| TH01 | DDoS en Perímetro                    | 8   | 9 | 8 | 10 | 10 | 45/50 | CRÍTICO |
-| TH02 | Tampering del Voto                   | 10 | 6 | 4 | 10 | 5   | 35/50 | ALTO       |
-| TH04 | Correlación (Info. Disclosure) | 10 | 3 | 3 | 10 | 4    | 30/50 | ALTO      |
-| TH03 | Spoofing de Identidad              | 9   | 7 | 5 | 2   | 6    | 29/50 | MEDIO   |
+| ID   | Amenaza | D | R | E | A | D | Total | Nivel |
+| ---- | ------- | - | - | - | - | - | ----- | ----- |
+| TH01 | Denegacion de servicio en el acceso al sistema | 8 | 8 | 8 | 9 | 9 | 42 | Critico |
+| TH02 | Suplantacion de identidad del votante | 8 | 7 | 6 | 7 | 7 | 35 | Alto |
+| TH03 | Manipulacion del voto antes del registro | 10 | 5 | 5 | 9 | 5 | 34 | Alto |
+| TH04 | Relacion indebida entre identidad y voto | 10 | 4 | 4 | 9 | 4 | 31 | Alto |
+| TH05 | Repudio de acciones o eventos | 6 | 6 | 5 | 5 | 6 | 28 | Medio |
+| TH06 | Alteracion del escrutinio o de los resultados | 10 | 5 | 5 | 10 | 5 | 35 | Alto |
+| TH07 | Elevacion de privilegios | 9 | 5 | 5 | 8 | 5 | 32 | Alto |
+| TH08 | Alteracion de logs y evidencia | 7 | 6 | 5 | 6 | 5 | 29 | Medio |
 
-Justificación Técnica de las Puntuaciones (Auditoría de Riesgo):
-TH01 (TOTAL: 45 - CRÍTICO): Se califica con el máximo puntaje en "Affected Users" (10) y "Discoverability" (10) porque el portal de votación debe ser de conocimiento y acceso público por definición. Su "Exploitability" es alta (8) dado que adquirir ataques volumétricos como servicio (DDoS-for-hire) no requiere conocimientos avanzados. Es el riesgo más inminente a nivel operativo.
-TH02 (TOTAL: 35 - ALTO): El "Damage" es absoluto (10), ya que alterar el voto destruye el propósito del sistema. Sin embargo, su "Exploitability" se reduce significativamente (4) gracias a la presencia del HSM y el cifrado planificado en la arquitectura, lo que obliga al atacante a vulnerar controles criptográficos complejos o tener acceso interno privilegiado.
-TH04 (TOTAL: 30 - ALTO): Al igual que la anterior, el daño de romper el secreto del sufragio es catastrófico (D=10) y afecta a todo el padrón (A=10). Su puntuación total disminuye debido a la baja "Reproducibility" (3) y "Exploitability" (3); lograr vincular las bases de datos requiere vulnerar el "Trust Boundary #2" y poseer permisos profundos de administrador de bases de datos, mitigando el riesgo frente a atacantes externos.
-TH03 (TOTAL: 29 - MEDIO): El robo de sesión (ej. mediante phishing) es fácil de reproducir (R=7). Sin embargo, la calificación general cae a "Medio" porque los "Affected Users" se evalúan en 2. El robo de credenciales suele ser un ataque "uno a uno"; un atacante tendría que vulnerar a los votantes de forma masiva e individualizada para alterar el resultado global de la elección, lo que escala logísticamente de forma ineficiente.
+5.4 Justificacion General de la Priorizacion
 
+- TH01 se considera critico porque puede impedir que los votantes accedan al sistema y ejerzan su voto.
+- TH02 se considera alto porque una suplantacion de identidad afecta una funcion central del sistema: que vote la persona correcta.
+- TH03 y TH06 se consideran altos porque afectan directamente la integridad del voto y del resultado electoral.
+- TH04 se considera alto porque compromete el secreto del sufragio, que es uno de los objetivos principales del sistema.
+- TH07 se considera alto porque un acceso con privilegios mayores podria impactar servicios criticos.
+- TH05 y TH08 se consideran medios porque afectan la trazabilidad, la auditoria y la capacidad de investigacion, aunque no necesariamente cambian por si solos el resultado final.
 
-5.3 Escala de Severidad
+5.5 Escala de Severidad
 
-    CRÍTICO (40-50): Remediar inmediatamente. (Ej. Implementar protección Anti-DDoS en TH01).
-    ALTO (30-39): Remediar ASAP. (Ej. Reforzar aislamiento de red en TH02).
-    MEDIO (20-29): Remediar en siguiente sprint. (Ej. Añadir validación multifactor MFA en TH03).
-    BAJO (10-19): Monitorear.
-    MÍNIMO (1-9): Aceptar riesgo.
+- Critico (40 a 50): debe atenderse de forma inmediata.
+- Alto (30 a 39): debe corregirse con prioridad alta.
+- Medio (20 a 29): debe planificarse su correccion.
+- Bajo (10 a 19): requiere seguimiento y monitoreo.
+- Minimo (1 a 9): riesgo aceptable o de bajo impacto.
 
+5.6 Resumen del Analisis
+
+La priorizacion con DREAD muestra que los riesgos mas importantes del sistema estan relacionados con la disponibilidad del acceso, la integridad del voto, la proteccion de los resultados y la privacidad del sufragio. Esto permite enfocar las mitigaciones en los puntos mas sensibles del proyecto.

@@ -1,111 +1,86 @@
-══════════════════════════════════════════════════════════
+7. PLAN DE MITIGACION
 
-     7. PLAN DE MITIGACIÓN Y REQUISITOS EXTRA
+7.1 Introduccion
 
-══════════════════════════════════════════════════════════
+El plan de mitigacion presenta los controles de seguridad propuestos para reducir las amenazas identificadas en el analisis. Su objetivo es mostrar que medidas pueden aplicarse para proteger la disponibilidad, integridad, confidencialidad y trazabilidad del sistema de votacion.
 
- 7.1 Controles de Seguridad
+7.2 Tabla General de Controles
 
-| ID    | Estado | Amenaza                        | Control de Seguridad                                                                                            | Prioridad |
-| ------ | ----------- | -------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------- |
-| C01 | Pend. | TH01 (DDoS / T1498) | Desplegar módulo Anti-DDoS, WAF y Rate Limiting en el API Gateway. | Alta |
-| C02 | Pend. | TH02 (Tampering / T1565) | Aislar el Servicio de Escrutinio en VLAN dedicada y aplicar validaciones criptográficas de integridad (Hashes/Firmas). | Alta |
-| C03 | Pend. | TH04 (Info. Disc.) | Implementar protocolo de disociación de logs (Tokenización de PII). | Alta |
-| C04 | Pend. | TH03 (Spoofing / T1078) | Forzar autenticación robusta (MFA / CI Digital) y vinculación de tokens de sesión para evitar su robo (T1528/T1557). | Media |
+| ID  | Amenaza relacionada | Control propuesto | Prioridad | Estado |
+| --- | ------------------- | ----------------- | --------- | ------ |
+| C01 | TH01 - Denegacion de servicio en el acceso al sistema | Implementar WAF, rate limiting y proteccion basica contra ataques de denegacion de servicio. | Alta | Pendiente |
+| C02 | TH02 - Suplantacion de identidad del votante | Aplicar autenticacion robusta, control de sesiones y vencimiento de tokens. | Alta | Pendiente |
+| C03 | TH03 - Manipulacion del voto antes del registro | Aplicar cifrado del voto y controles de integridad antes del almacenamiento. | Alta | Pendiente |
+| C04 | TH04 - Relacion indebida entre identidad y voto | Mantener separacion entre autenticacion y emision del voto, evitando registros vinculables. | Alta | Pendiente |
+| C05 | TH05 - Repudio de acciones o eventos | Registrar eventos importantes del sistema y conservar evidencia para auditoria. | Media | Pendiente |
+| C06 | TH06 - Alteracion del escrutinio o de los resultados | Restringir el acceso al escrutinio y controlar la publicacion de resultados. | Alta | Pendiente |
+| C07 | TH07 - Elevacion de privilegios | Definir roles, aplicar minimo privilegio y limitar funciones administrativas. | Alta | Pendiente |
+| C08 | TH08 - Alteracion de logs y evidencia | Proteger logs, centralizar monitoreo y evitar eliminacion o modificacion no autorizada. | Media | Pendiente |
 
-(Nota de trazabilidad: Se ajustaron las prioridades de los controles para reflejar fidedignamente los resultados cuantitativos obtenidos en la matriz DREAD).
+7.3 Controles Priorizados
 
----
+C01 - Proteccion del acceso al sistema
 
- 7.1.1 Fichas de Implementación Detalladas (Riesgos de Prioridad Alta)
+Este control busca reducir el riesgo de que el sistema quede fuera de servicio durante la eleccion. Para ello se propone el uso de WAF, limitacion de peticiones y proteccion perimetral basica.
 
- 📋 Control C01: Módulo Anti-DDoS y Rate Limiting Perimetral
- Amenaza Mitigada: TH01 - Denegación de Servicio Distribuido (DDoS - Distributed Denial of Service) / Técnica MITRE T1498.
- Descripción: Desplegar una capa de mitigación volumétrica basada en la nube y un WAF (Web Application Firewall - Cortafuegos de Aplicaciones Web, diseñado para inspeccionar y filtrar tráfico HTTP malicioso) por delante del API Gateway (Application Programming Interface Gateway - el punto de entrada único para todas las peticiones de los clientes). Se configurarán reglas estrictas de Rate Limiting (límite de velocidad, restringiendo la cantidad de peticiones concurrentes permitidas por cada dirección IP) para identificar y bloquear ráfagas malformadas de botnets.
- Nivel de Esfuerzo: Bajo / Medio. La integración perimetral requiere principalmente cambios de enrutamiento DNS y tunelización segura, sin alterar el código core de la aplicación.
- Impacto Esperado: Muy Alto. Reduce drásticamente la probabilidad de éxito de ataques DoS, garantizando la disponibilidad de los servidores durante la jornada electoral.
+C02 - Autenticacion y control de sesiones
 
- 📋 Control C02: Segregación Estricta de Red y Validación Criptográfica en Tránsito
- Amenaza Mitigada: TH02 - Manipulación del Voto en Tránsito (Tampering) / Técnica MITRE T1565.
- Descripción: Implementar aislamiento físico/lógico del Servicio de Escrutinio mediante una VLAN dedicada (Virtual Local Area Network - Red de Área Local Virtual que aísla el tráfico a nivel de red, impidiendo que otros servidores se comuniquen directamente con el escrutinio). Todo voto transmitido desde el cliente debe incluir una firma digital o validación criptográfica basada en Hashes (funciones matemáticas unidireccionales que garantizan que el archivo no fue modificado) calculada en origen. El backend validará la integridad del hash antes de consolidar el registro.
- Nivel de Esfuerzo: Alto. Requiere reconfiguración de la infraestructura de red corporativa, definición de políticas de firewall estrictas y desarrollo para la validación de firmas en el backend.
- Impacto Esperado: Crítico. Neutraliza la ventana de exposición, impidiendo que un atacante interno o una cuenta comprometida modifique los datos en tránsito.
+Este control busca evitar la suplantacion de identidad del votante. Se propone usar mecanismos de autenticacion mas robustos, sesiones temporales y control del uso de tokens.
 
- 📋 Control C03: Protocolo de Disociación de Logs y Tokenización de PII
- Amenaza Mitigada: TH04 - Correlación de Identidad y Voto (Information Disclosure) / CWE-200.
- Descripción: Implementar un mecanismo de tokenización unidireccional (salado criptográfico) para ocultar las PII (Personally Identifiable Information - Información de Identificación Personal, como nombres, documentos o correos electrónicos). Se prohíbe taxativamente el registro simultáneo de datos del padrón electoral (PII) junto con los identificadores de voto en las bases de datos transaccionales o en los logs de auditoría centralizados.
- Nivel de Esfuerzo: Medio. Exige el rediseño del modelo de datos de persistencia y la configuración de filtros de depuración (data masking) en el sistema de registro de eventos (logging).
- Impacto Esperado: Alto. Elimina el riesgo de quiebre del secreto del sufragio por correlación cruzada de datos en la base de datos.
+C03 - Integridad del voto
 
- 📋 Control C04: Control de Autenticación y Vinculación de Sesión (Session Binding)
- Amenaza Mitigada: TH03 - Suplantación de Identidad (Spoofing) / T1078, T1528, T1557.
- Descripción: Imponer MFA (Multi-Factor Authentication - Autenticación Multifactor, exigiendo contraseña más un código SMS/App) o el uso de CI Digital (Cédula de Identidad Digital, estándar en Uruguay). Adicionalmente, implementar Session Binding: los JWT (JSON Web Tokens - estándar seguro para transmitir la sesión del usuario autenticado) deben ligarse criptográficamente a la huella digital del dispositivo o IP de origen. Configurar un tiempo de vida corto (Short-lived tokens) complementado con mecanismos de Refresh Tokens de un solo uso.
- Nivel de Esfuerzo: Medio. Requiere actualización en la lógica del Servicio de Autenticación y validación en el API Gateway.
- Impacto Esperado: Alto. Si un atacante intercepta un token mediante técnicas AitM (Adversary-in-the-Middle - atacante posicionado entre el usuario y el servidor interceptando el tráfico), el sistema rechazará automáticamente el JWT al detectar que es presentado desde una IP o dispositivo diferente al original.
+Este control busca asegurar que el voto no sea modificado antes de quedar registrado. Para ello se propone mantener el cifrado del voto y agregar validaciones de integridad en el proceso.
 
----
+C04 - Separacion entre identidad y voto
 
- 7.2 Entregable Extra: Matriz de Controles de Integridad (Escenario 8)
+Este control busca proteger el secreto del sufragio. La idea es mantener separados los procesos de autenticacion y emision del voto, y evitar que logs o bases de datos permitan relacionar al votante con su eleccion.
 
-En cumplimiento de los requerimientos específicos de la plataforma de votación, se detalla cómo el sistema asegura que los resultados reflejen fielmente la voluntad del electorado:
+C05 - Trazabilidad y evidencia
 
-| Componente | Mecanismo de Integridad | Control de Validación | Garantía de No Alteración |
-| ------------------- | -------------------------------------- | --------------------------------- | --------------------------------------- |
-| Cliente Web / Móvil | Cifrado Homomórfico Local | El dispositivo del votante cifra el voto antes de transmitirlo mediante una clave pública institucional. | El voto viaja de extremo a extremo sin que la red o los servidores intermedios puedan conocer su contenido o alterarlo. |
-| API Gateway / Capa de Tránsito | mTLS (Mutual Transport Layer Security) | Autenticación mutua obligatoria: no solo el cliente verifica al servidor (TLS clásico), sino que el servidor exige un certificado válido al microservicio cliente. | Evita ataques de inyección, interceptación (AitM) o falsificación de identidad en los límites de confianza internos. |
-| Servicio de Escrutinio | Validación de Firmas | Verificación criptográfica obligatoria contra las claves simétricas almacenadas en el HSM (Hardware Security Module - procesador físico ultra-seguro dedicado a gestionar claves y firmas criptográficas) certificado bajo la norma FIPS 140-2 (estándar federal de seguridad de EE.UU.). | Impide que votos falsificados o inyecciones directas en la base de datos (T1565) se consoliden en el conteo final. |
-| Audit Trail | Ledger de Blockchain | Almacenamiento descentralizado de los hashes de los bloques transaccionales. | Convierte el registro de votos en una estructura inmutable. |
+Este control busca que el sistema conserve evidencia de acciones importantes. Esto ayuda a auditorias y a investigar incidentes o reclamos.
 
----
+C06 - Proteccion del escrutinio y resultados
 
- 7.3 Controles por Categoría
+Este control busca evitar accesos no autorizados al conteo o a la publicacion de resultados. Se propone restringir permisos y controlar el momento y forma en que la informacion es mostrada.
 
-CONTROLES PREVENTIVOS:
- [x] MFA (Autenticación Multifactor) para administradores y auditores.
- [x] Cifrado de datos en tránsito y en reposo (mTLS, Cifrado Homomórfico).
- [x] Validación de entrada en el API Gateway.
- [x] RBAC (Role-Based Access Control - Control de Acceso Basado en Roles, otorgando el principio de mínimo privilegio necesario para cada tarea).
- [x] Segmentación de red mediante VLAN.
- [x] Cifrado TLS 1.3 forzado y HSTS (HTTP Strict Transport Security - política que obliga a los navegadores a conectarse exclusivamente mediante HTTPS seguro).
+C07 - Control de privilegios
 
-CONTROLES DETECTIVOS:
- [x] Logging de eventos de seguridad centralizado e inmutable.
- [x] Monitorización con SIEM (Security Information and Event Management - plataforma que centraliza, analiza y correlaciona alertas de seguridad en tiempo real) configurado para detectar uso anómalo de cuentas (T1078).
- [x] Alertas de anomalías en el volumen de emisión de votos.
+Este control busca impedir que usuarios comunes accedan a funciones administrativas o criticas. Se propone trabajar con roles claros y con el principio de minimo privilegio.
 
-CONTROLES CORRECTIVOS:
- [x] Plan de respuesta a incidentes.
- [x] Procedimientos de backup inmutables (excluyendo claves del HSM).
+C08 - Proteccion de logs y monitoreo
 
-══════════════════════════════════════════════════════════
+Este control busca proteger la evidencia del sistema. Se propone centralizar logs y monitoreo para dificultar su alteracion o eliminacion.
 
-     8. MATRIZ DE CONTROLES (NIST SP 800-53 / NTCSI)
+7.4 Controles por Tipo
 
-══════════════════════════════════════════════════════════
+Controles preventivos:
 
-Nota: Los controles se mapean contra NIST SP 800-53 Rev. 5 (Catálogo de controles de seguridad y privacidad del Instituto Nacional de Estándares y Tecnología de EE.UU.), cumpliendo rigurosamente con las exigencias del Marco Nacional de Ciberseguridad de AGESIC y su NTCSI (Norma Técnica de Ciberseguridad de la Información de Uruguay).
+- C01 - WAF, rate limiting y proteccion del acceso.
+- C02 - Autenticacion robusta y control de sesiones.
+- C03 - Cifrado e integridad del voto.
+- C04 - Separacion entre identidad y voto.
+- C06 - Restriccion de acceso al escrutinio y resultados.
+- C07 - Definicion de roles y minimo privilegio.
 
-| ID | Control | Descripción | Referencia |
-| --------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -----------------|
-| SC-13 | Cryptographic Protection | Uso de HSM FIPS 140-2 para protección de claves maestras y firma de escrutinio.                          | NIST SC-13 |
-| SC-5 | Denial of Service Prot.         | Controles de mitigación volumétrica y rate-limiting en el perímetro del sistema.                              | NIST SC-5 |
-| AC-4 | Information Flow Enf.          | Control estricto y segmentación de flujos entre los Trust Boundaries definidos.                              | NIST AC-4 |
-| AU-9 | Protection of Audit Info     | Uso de infraestructura Blockchain para garantizar el no repudio e inmutabilidad de la auditoría. | NIST AU-9 |
-| IA-2 | Identification and Auth.       | Verificación unívoca y robusta del ciudadano contra el padrón electoral centralizado.                    | NIST IA-2 |
+Controles detectivos:
 
+- C05 - Registros de auditoria y trazabilidad.
+- C08 - Monitoreo centralizado y seguimiento de eventos.
 
-══════════════════════════════════════════════════════════
+Controles correctivos:
 
-     11. ENTREGABLE EXTRA: EVALUACIÓN DE ANONIMALIDAD (RFC 6973)
+- Revision de incidentes detectados en auditoria.
+- Recuperacion de informacion mediante backups.
+- Aplicacion de cambios de configuracion o bloqueo de accesos si se detecta un problema.
 
-══════════════════════════════════════════════════════════
+7.5 Referencias Generales
 
-Siguiendo las directrices de privacidad estipuladas por el RFC 6973 (Request for Comments 6973 - documento técnico estándar internacional que define las consideraciones de privacidad para protocolos de Internet), se realiza el análisis sobre las salvaguardas que impiden la correlación de la identidad del votante con su sufragio emitido:
+Los controles propuestos se apoyan en ideas generales tomadas de buenas practicas de seguridad como:
 
-1. Principio de No-Vinculabilidad (Unlinkability): El sistema implementa una separación lógica y física estricta entre el Servicio de Autenticación (que valida la CI Digital o MFA y marca que "ya votó") y el Servicio de Emisión (que recibe el criptograma del voto). El uso de blind signatures (firmas ciegas) asegura que el Servicio de Emisión reciba un voto válido sin posibilidad alguna de conocer qué identidad del padrón lo generó.
+- NIST: autenticacion, auditoria, proteccion de informacion y control de accesos.
+- OWASP: buenas practicas para seguridad en aplicaciones web.
+- CIS Controls: monitoreo, gestion de accesos y configuracion segura.
 
-2. Mitigación de la Coerción (Voto Coercion):
-   La arquitectura contempla el requisito de "Voto Múltiple Reemplazable": un votante coercionado (amenazado físicamente) puede emitir su voto bajo coacción, pero la plataforma le permite ingresar nuevamente más tarde de forma legítima. El sistema procesará el escrutinio basándose únicamente en el último voto registrado, invalidando automáticamente los anteriores sin alertar al coactor.
+7.6 Resumen
 
-3. Minimización de Datos en Logs:
-   Los logs centralizados de auditoría (mapeados bajo el control NIST AU-9) tienen prohibido recolectar direcciones IP, identificadores de navegador (USER-AGENTS) o metadatos de sesión en el microservicio de escrutinio.
+El plan de mitigacion permite relacionar cada amenaza principal con una respuesta concreta. En este proyecto, la mayor prioridad se encuentra en proteger el acceso al sistema, asegurar la identidad del votante, mantener la integridad del voto, cuidar la privacidad y controlar adecuadamente el escrutinio y la auditoria.
